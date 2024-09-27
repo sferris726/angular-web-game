@@ -1,0 +1,542 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <style>
+    .box {
+      background-color: black;
+      height: 100px;
+      margin-right: 1.5px;
+      margin-left: 1.5px;
+      margin-bottom: 3px;
+    }
+
+    .box:hover {
+      opacity: 0.5;
+      cursor: pointer;
+    }
+
+    a,
+    a:hover {
+      color: white;
+    }
+
+    .inline {
+      display: inline;
+    }
+
+    .txt-center {
+      text-align: center;
+      font-size: 125%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="jumbotron jumbotron-fluid mb-0">
+    <div class="container">
+      <h1 class="display-4">Treasure Hunt</h1>
+      <p class="lead">&ensp;See how quick you can find the treasure!</p>
+    </div>
+  </div>
+
+  <div class="">
+    <ul class="nav justify-content-start border p-2 bg-dark text-light">
+      <li class="nav-item">
+        <a href="#" id="playBtn" class="nav-link">&ensp;&ensp;New Game</a>
+      </li>
+      <li class="nav-item">
+        <a href="#" id="statsBtn" class="nav-link">Stats</a>
+      </li>
+      <li class="nav-item">
+        <a href="#" id="historyBtn" class="nav-link">History</a>
+      </li>
+      <li class="nav-item">
+        <a href="#" id="settingsBtn" class="nav-link">Settings&ensp;&ensp;&ensp;</a>
+      </li>
+      <li class="nav-item">
+        <a href="#" id="loginBtn" class="nav-link">Login</a>
+      </li>
+      <li class="nav-item">
+        <a href="#" id="registerBtn" class="nav-link">Register</a>
+      </li>
+      <li class="nav-item">
+        <span id="msg" style="font-size: 125%;"></span>
+      </li>
+      <li class="nav-item">
+        <a href="#" id="logoutBtn" class="nav-link">Logout</a>
+      </li>
+    </ul>
+    <div>
+    </div>
+
+    <div id="gameStart" class="container" style="margin-top: 20px;">
+      <div id="boxes" class="container">
+        <div id="row" class="row no-gutters">
+        </div>
+        <p class="inline" id="response"></p>
+        <p class="inline" id="response2"></p>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"></script>
+
+    <div id="loginDlg" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-light">
+            <h5 class="modal-title">Login</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h4>Login</h4>
+            <form class="border border-primary p-3">
+              <div class="form-group">
+                <input type="text" class="form-control" id="email" name="email" placeholder="Email">
+              </div>
+              <div class="form-group">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+              </div>
+            </form>
+            <div>
+              <p id="loginError" style="color: red;"></p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="confirmLoginBtn" type="button" class="btn btn-primary">Login</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="registerDlg" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-light">
+            <h5 class="modal-title">Register</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h4>Register</h4>
+            <form class="border border-primary p-3">
+              <div class="form-group">
+                <label for="regEmail"><b>User Email:</b></label>
+                <input type="text" class="form-control" id="regEmail" name="regEmail" placeholder="Email">
+              </div>
+              <div class="form-group">
+                <label for="regPassword"><b>Password:</b></label>
+                <input type="password" class="form-control" id="regPassword" name="regPassword" placeholder="Password">
+              </div>
+              <div class="form-group">
+                <label for="box-number-reg"><b>Number of Boxes:</b></label>
+                <input type="number" class="form-control" id="box-number-reg" name="box-number-reg" min="2" max="100" aria-describedby="emailHelp"
+                  placeholder="Enter a number">
+                <label for="box-max-reg" style="padding-top: 20px;"><b>Max Attempts:</b></label>
+                <input type="number" class="form-control" id="box-max-reg" name="box-max-reg" aria-describedby="emailHelp"
+                  placeholder="Enter a number">
+              </div>
+            </form>
+            <div>
+              <p id="registerError" style="color: red;"></p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="confirmRegisterBtn" type="button" class="btn btn-primary">Register</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="statsDlg" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-light">
+            <h5 class="modal-title">Game Stats</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h4>Stats</h4>
+            <p class="inline, txt-center" id="statsPlayed"><b>Number of Games Played: </b>
+            <p class="inline, txt-center" id="statPlayed"></p>
+            </p><br>
+            <p class="inline, txt-center" id="statsWon"><b>Number of Games Won: </b>
+            <p class="inline, txt-center" id="statWon"></p>
+            </p><br>
+            <p class="inline, txt-center" id="statsLost"><b>Number of Games Lost: </b>
+            <p class="inline, txt-center" id="statLost"></p>
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="historyDlg" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-light">
+            <h5 class="modal-title">Game History</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h4>History (From Most Recent)</h4>
+            <p id="historyBody"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="settingsDlg" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-light">
+            <h5 class="modal-title">Game Settings</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h4>Settings</h4>
+            <form id="gameSettings" class="border border-primary p-3">
+              <div class="form-group">
+                <label for="boxCount"><b>Number of Boxes:</b></label>
+                <input type="number" class="form-control" id="box-number" name="box-number" min="2" max="100" aria-describedby="emailHelp"
+                  placeholder="Enter a number">
+                <label for="maxGuesses" style="padding-top: 20px;"><b>Max Attempts:</b></label>
+                <input type="number" class="form-control" id="box-max" name="box-max" aria-describedby="emailHelp"
+                  placeholder="Enter a number">
+              </div>
+            </form>
+            <div>
+              <p id="settings-error" style="color: red;">Please enter valid numbers / Max Attempts should be less than
+                Number of boxes.</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="confirmSettings" type="button" class="btn btn-primary">Confirm</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="myModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-light">
+            <h5 class="modal-title">You found the treasure!!!</h5>
+          </div>
+          <div class="modal-body">
+            <p>Would you like to play again?</p>
+          </div>
+          <div class="modal-footer">
+            <button id="btnSubmit" type="button" class="btn btn-primary">Yes</button>
+            <button id="btnNo" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="game-over" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-light">
+            <h5 class="modal-title">Too Many Guesses - Game Over!</h5>
+          </div>
+          <div class="modal-body">
+            <p>Would you like to play again?</p>
+          </div>
+          <div class="modal-footer">
+            <button id="overSubmit" type="button" class="btn btn-primary">Yes</button>
+            <button id="overNo" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* global $ */
+      $(document).ready(function () {
+        let model = {};
+
+        function initializeModel() {
+          sendRequest("whoIsLoggedIn", function () {
+            if (model.response.user != undefined)
+              updateMenuView();
+          });
+        }
+
+        //view
+        function updateMenuView() {
+          console.log(model);
+          if (model.response.user == undefined) {
+            $("#msg").text(model.response.nobody);
+
+            $("#logoutBtn").hide();
+            $("#loginBtn").show();
+            $("#registerBtn").show();
+            $("#playBtn").hide();
+            $("#statsBtn").hide();
+            $("#historyBtn").hide();
+            $("#settingsBtn").hide();
+            $("#boxes").hide();
+          }
+          else {
+            $("#logoutBtn").show();
+            $("#playBtn").show();
+            $("#statsBtn").show();
+            $("#historyBtn").show();
+            $("#settingsBtn").show();
+            $("#loginBtn").hide();
+            $("#registerBtn").hide();
+
+            $("#msg").text("Hello " + model.response.user.email);
+
+          }
+        }
+
+        function updateGuessView() {
+          if (model.error != undefined) {
+            $("#response").text(model.error);
+          }
+          else {
+            let txt = "";
+            if (model.response.guesses == undefined) {
+              txt = "Guesses: " + 0 + " / ";
+            }
+            else {
+              if (model.response.guesses != undefined) {
+                txt = "Guesses: " + model.response.guesses + " / ";
+              }
+            }
+            $("#response").text(txt);
+            $("#response2").text("Max Attempts: " + model.maxGuesses);
+          }
+        }
+
+        function updateGridView() {
+          $("#row").empty();
+          for (let i = 0; i < model.boxCount; i++) {
+            $('<div class="col-6"><div class="box"></div></div>').appendTo("#row");
+          }
+          let num = 0;
+          $(".box").each(function () {
+            num++;
+            $(this).attr("current-guess", num);
+          });
+        }
+
+        $(document).on("click", ".box", function () {
+          let box = $(this);
+          sendRequest("game?guess=" + $(this).attr("current-guess"), function () {
+            if (model.response.gameStatus == "Win") {
+              box.each(function () {
+                $(this).attr("data-target", "#myModal");
+                $("#myModal").modal({ backdrop: "static", keyboard: false });
+                $("#myModal").modal("show");
+              });
+              box.css("background-color", "green");
+              $("#btnSubmit").click(function () {
+                startGame();
+                $("#myModal").modal("hide");
+              });
+              $("#btnNo").click(function () {
+                $("#boxes").hide();
+                $("#myModal").modal("hide");
+              });
+            }
+            else if (model.response.gameStatus == "gameOver") {
+              box.each(function () {
+                $(this).attr("data-target", "#game-over");
+                $("#game-over").modal({ backdrop: "static", keyboard: false });
+                $("#game-over").modal("show");
+              });
+              box.css("background-color", "red");
+              $("#overSubmit").click(function () {
+                startGame();
+                $("#game-over").modal("hide");
+              });
+              $("#overNo").click(function () {
+                $("#boxes").hide();
+                $("#game-over").modal("hide");
+              });
+            }
+            else {
+              box.css("background-color", "red");
+            }
+          });
+
+        });
+
+        function startGame() {
+          sendRequest("game?boxCount=" + model.boxCount + "&maxGuesses=" + model.maxGuesses, updateGridView);
+        }
+
+        // controller ...
+        function sendRequest(url, callback) {
+          console.log(url);
+          let jqxhr = $.get(url);
+          jqxhr.done(function (json) {
+            model.response = json;
+            updateMenuView();
+            updateGuessView();
+            if (callback !== undefined)
+              callback();
+          });
+          jqxhr.fail(function (json) {
+            let error = JSON.stringify(json);
+            model.error = error;
+            updateMenuView();
+            updateGuessView();
+            updateGridView();
+          });
+        }
+
+        $("#loginBtn").click(function () {
+          $("#password").val("");
+          $("#loginDlg").modal("show");
+          $("#loginError").hide();
+        });
+
+        $("#registerBtn").click(function () {
+          $("#regEmail").val("");
+          $("#regPassword").val("");
+          $("#box-number-reg").val();
+          $("#box-max-reg").val();
+          $("#registerDlg").modal("show");
+          $("#registerError").hide();
+        });
+
+        $("#playBtn").click(function () {
+          startGame();
+          $("#boxes").show();
+        });
+
+        $("#historyBtn").click(function () {
+          sendRequest("history", function () {
+            if (model.response.error == undefined) {
+              $("#historyBody").empty();
+              for (let j in model.response.history) {
+                let item = $('<li class="list-group-item"></li>');
+                item.text("Win(1)/Loss(0): " + model.response.history[j].Result + "  |   Num. of Guesses: " + model.response.history[j].Guesses + "  |   Max Guesses: " + model.response.history[j].MaxGuesses);
+                $("#historyBody").append(item);
+              }
+            } else {
+              $("#historyBody").text(model.response.error);
+            }
+            updateMenuView();
+          });
+          $("#historyDlg").modal("show");
+        });
+
+        $("#settingsBtn").click(function () {
+          $("#box-number").val();
+          $("#box-max").val();
+          $("#settings-error").hide();
+          $("#settings-error2").hide();
+          $("#settingsDlg").modal("show");
+        });
+
+        $("#statsBtn").click(function () {
+          sendRequest("stats", function () {
+            if (model.response.error == undefined)
+              $("#statPlayed").text(model.response.statPlayed);
+              $("#statWon").text(model.response.statWon);
+              $("#statLost").text(model.response.statLost);
+              updateMenuView();
+          });
+          $("#statsDlg").modal("show");
+        });
+
+        $("#logoutBtn").click(function () {
+          sendRequest("logout", function () {
+            if (model.error == undefined)
+              $("#msg").text(model.response.nobody);
+            updateMenuView();
+
+          });
+        });
+
+        $("#confirmLoginBtn").click(function () {
+          let email = $("#email").val().trim();
+          let password = $("#password").val().trim();
+
+          sendRequest("login?email=" + email + "&password=" + password, function () {
+            if (model.response.error == undefined) {
+              updateMenuView();
+              $("#loginDlg").modal("hide");
+              model.boxCount = model.response.user.userBoxCount;
+              model.maxGuesses = model.response.user.userMaxGuesses;
+              startGame();
+            } else {
+              $("#loginError").show();
+              $("#loginError").text(model.response.error);
+            }
+          });
+        });
+
+        $("#confirmRegisterBtn").click(function () {
+          let email = $("#regEmail").val().trim();
+          let password = $("#regPassword").val().trim();
+          let regBoxCount = parseInt($("#box-number-reg").val());
+          let regMaxGuesses = parseInt($("#box-max-reg").val());
+          sendRequest("register?email=" + email + "&password=" + password + "&boxCount=" + regBoxCount + "&maxGuesses=" + regMaxGuesses, function () {
+            if (model.response.error == undefined) {
+              model.boxCount = model.response.user.userBoxCount;
+              model.maxGuesses = model.response.user.userMaxGuesses;
+              startGame();
+              $("#registerDlg").modal("hide");
+            } else {
+              $("#registerError").show();
+              $("#registerError").text(model.response.error);
+            }
+          });
+        });
+
+        $("#confirmSettings").click(function () {
+          let setBoxCount = parseInt($("#box-number").val());
+          let setMaxGuesses = parseInt($("#box-max").val());
+          if (setMaxGuesses < setBoxCount) {
+            sendRequest("updateUser?boxCount=" + setBoxCount + "&maxGuesses=" + setMaxGuesses);
+            model.boxCount = setBoxCount;
+            model.maxGuesses = setMaxGuesses;
+            startGame();
+            $("#settingsDlg").modal("hide");
+          } else {
+            $("#settings-error").show();
+            }
+        });
+
+        // run...
+        initializeModel();
+        updateGridView();
+      });
+    </script>
+
+</body>
+
+</html>
