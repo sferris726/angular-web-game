@@ -12,6 +12,7 @@ export class LoginButtonComponent {
   }
 
   public onSubmit() {
+    console.log("WE IN HERE BUTTON");
     this._login_service.sendCredentials("Scott", "1234");
   }
 }

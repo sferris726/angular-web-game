@@ -5,7 +5,9 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/sessions"
 )
@@ -46,11 +48,36 @@ func auth(c *gin.Context) {
 	c.Next()
 }
 
+func serveIndex(c *gin.Context) {
+	fmt.Println("HELLO FROM GO")
+	writeResult(c, http.StatusOK, []byte(`{"name": "Scott"}`))
+}
+
+func handleLogin(c *gin.Context) {
+	fmt.Println("WE MADE IT")
+	var tmp string
+	fmt.Println("Got login: ", c.BindJSON(tmp))
+}
+
 func setupRouter() *gin.Engine {
 	router := gin.Default() // init router with default mw (e.g. logging)
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:4200"},
+		AllowMethods:     []string{"GET", "PUT", "PATCH", "POST"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://github.com"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
+
+	router.GET("/", serveIndex)
 	router.GET("/usersLoggedIn")
 	router.GET("/register")
-	router.GET("/login")
+	router.POST("/login", handleLogin)
 	router.GET("/logout")
 	router.GET("/game")
 	router.GET("/stats")
@@ -66,20 +93,17 @@ func setupRouter() *gin.Engine {
 	return router
 }
 
-func initDb() {
-	var err error
-	db, err = sql.Open("mysql", "root:secret-jungle@tcp(localhost:3000)/gin_db")
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-}
+// func initDb() {
+// 	var err error
+// 	db, err = sql.Open("mysql", "root:secret-jungle@tcp(localhost:3000)/gin_db")
+// 	if err != nil {
+// 		panic(err.Error())
+// 	}
+// 	defer db.Close()
+// }
 
 func main() {
 	r := setupRouter()
-	initDb()
-
-	authRouter := r.Group("/user")
-
+	// initDb()
 	r.Run("localhost:3000")
 }
