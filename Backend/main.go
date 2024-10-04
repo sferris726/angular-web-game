@@ -18,12 +18,11 @@ import (
 )
 
 type User struct {
-	id             uint32
-	email          string
-	username       string
-	pw             string
-	settings_guess int
-	settings_box   int
+	Email         string `json:"email"`
+	Username      string `json:"username"`
+	Pw            string `json:"password"`
+	SettingsGuess int    `json:"settings_guess"`
+	SettingsBox   int    `json:"settings_box"`
 }
 
 var db *sql.DB
@@ -60,7 +59,7 @@ func serveIndex(c *gin.Context) {
 
 func handleLogin(c *gin.Context) {
 	var user User
-	user.username = c.PostForm("username")
+	user.Username = c.PostForm("username")
 	password := c.PostForm("password")
 	err := user.getUserByUserName()
 	if err != nil {
@@ -69,7 +68,7 @@ func handleLogin(c *gin.Context) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.pw), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Pw), []byte(password))
 
 	if err != nil {
 		fmt.Println("error with password, ", err)
@@ -85,24 +84,26 @@ func handleLogin(c *gin.Context) {
 
 func handleRegister(c *gin.Context) {
 	var user User
-
+	fmt.Println("MADE IT IN")
 	if err := c.BindJSON(&user); err != nil {
+		fmt.Println("BAD REQ")
 		writeResult(c, http.StatusBadRequest, []byte(`{"error": "Bad request"}`))
 		return
 	}
 
-	if !validateEmail(user.email) || !validateUserName(user.username) {
+	if !validateEmail(user.Email) /* || !validateUserName(user.username)*/ {
+		fmt.Println("INVALID EMAIL: ", user.Email)
 		writeResult(c, http.StatusBadRequest, []byte(`{"error": "Invalid Email or username"}`))
 		return
 	}
 
-	query := "INSERT INTO Users (Email, PassCode, SettingsBox, SettingsGuess) VALUES (?, ?, ?, ?)"
-	res, err := db.Exec(query, user.email, user.pw, user.settings_box, user.settings_guess)
+	query := "INSERT INTO Users (Email, Username, PassCode, SettingsBox, SettingsGuess) VALUES (?, ?, ?, ?, ?)"
+	_, err := db.Exec(query, user.Email, user.Username, user.Pw, user.SettingsGuess, user.SettingsBox)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Inserted into DB: ", res)
+	writeResult(c, http.StatusOK, []byte(`{"success": "User registered successfully!"}`))
 }
 
 func validateEmail(s string) bool {
@@ -118,7 +119,7 @@ func validateUserName(s string) bool {
 func (u *User) getUserByUserName() error {
 	query := "SELECT * FROM Users WHERE Username = ?"
 
-	if err := db.QueryRow(query, u.username).Scan(&u.id, &u.email, &u.pw, &u.settings_guess, &u.settings_box); err != nil {
+	if err := db.QueryRow(query, u.Username).Scan(&u.Email, &u.Pw, &u.SettingsBox, &u.SettingsGuess); err != nil {
 		fmt.Println("getUserByUserName() returned error: ", err)
 		return err
 	}
@@ -143,7 +144,7 @@ func setupRouter() *gin.Engine {
 
 	router.GET("/", serveIndex)
 	router.GET("/usersLoggedIn")
-	router.GET("/register", handleRegister)
+	router.POST("/register", handleRegister)
 	router.POST("/login", handleLogin)
 	router.GET("/logout")
 

@@ -8,7 +8,6 @@ export class LoginService {
   constructor(private _http: HttpClient) {}
 
   public sendCredentials(username: string, pw: string) {
-    console.log('WE IN HERE');
     const url = 'http://localhost:3000/login';
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     this._http

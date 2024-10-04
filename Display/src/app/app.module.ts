@@ -5,11 +5,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginButtonComponent } from './login-button/login-button.component';
 import { provideHttpClient, withFetch } from '@angular/common/http';
+import { RegisterButtonComponent } from './register-button/register-button.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginButtonComponent,
+    RegisterButtonComponent,
   ],
   imports: [
     BrowserModule,
