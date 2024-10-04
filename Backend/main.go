@@ -4,7 +4,10 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"fmt"
+	"log"
 	"net/http"
+	"net/mail"
+	"regexp"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -52,17 +55,14 @@ func authHandler(c *gin.Context) {
 }
 
 func serveIndex(c *gin.Context) {
-	fmt.Println("HELLO FROM GO")
 	writeResult(c, http.StatusOK, []byte(`{"name": "Scott"}`))
 }
 
 func handleLogin(c *gin.Context) {
-	fmt.Println("IN HANDLER")
 	var user User
 	user.username = c.PostForm("username")
 	password := c.PostForm("password")
 	err := user.getUserByUserName()
-	fmt.Println("AFTER GET USERNAME")
 	if err != nil {
 		fmt.Println("error retrieving user from DB ", err)
 		writeResult(c, http.StatusUnauthorized, []byte(`{"error": "Incorrect username or password"}`))
@@ -76,7 +76,6 @@ func handleLogin(c *gin.Context) {
 		writeResult(c, http.StatusUnauthorized, []byte(`{"error": "Incorrect username or password"}`))
 		return
 	}
-	fmt.Println("PASSED BCRYPT CHECK")
 
 	session, _ := store.Get(c.Request, "session")
 	session.Values["id"] = user
@@ -84,17 +83,46 @@ func handleLogin(c *gin.Context) {
 	writeResult(c, http.StatusOK, []byte(`{"success": "User successfully logged in"}`))
 }
 
+func handleRegister(c *gin.Context) {
+	var user User
+
+	if err := c.BindJSON(&user); err != nil {
+		writeResult(c, http.StatusBadRequest, []byte(`{"error": "Bad request"}`))
+		return
+	}
+
+	if !validateEmail(user.email) || !validateUserName(user.username) {
+		writeResult(c, http.StatusBadRequest, []byte(`{"error": "Invalid Email or username"}`))
+		return
+	}
+
+	query := "INSERT INTO Users (Email, PassCode, SettingsBox, SettingsGuess) VALUES (?, ?, ?, ?)"
+	res, err := db.Exec(query, user.email, user.pw, user.settings_box, user.settings_guess)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Inserted into DB: ", res)
+}
+
+func validateEmail(s string) bool {
+	_, err := mail.ParseAddress(s)
+	return err == nil
+}
+
+func validateUserName(s string) bool {
+	re := regexp.MustCompile("^(?=.*[A-Za-z])(?=.*[0-9])(?=.*)[A-Za-z0-9]{8,20}$*/")
+	return re.MatchString(s)
+}
+
 func (u *User) getUserByUserName() error {
 	query := "SELECT * FROM Users WHERE Username = ?"
-	fmt.Println("BEFORE ROW CHECK ", db.Stats().OpenConnections)
-	if err2 := db.Ping(); err2 != nil {
-		fmt.Println("PING ERR ", err2)
-	}
-	fmt.Println("AFTER ROW CHECK ")
+
 	if err := db.QueryRow(query, u.username).Scan(&u.id, &u.email, &u.pw, &u.settings_guess, &u.settings_box); err != nil {
 		fmt.Println("getUserByUserName() returned error: ", err)
 		return err
 	}
+
 	return nil
 }
 
@@ -115,7 +143,7 @@ func setupRouter() *gin.Engine {
 
 	router.GET("/", serveIndex)
 	router.GET("/usersLoggedIn")
-	router.GET("/register")
+	router.GET("/register", handleRegister)
 	router.POST("/login", handleLogin)
 	router.GET("/logout")
 
@@ -132,9 +160,14 @@ func setupRouter() *gin.Engine {
 
 func initDb() {
 	var err error
-	db, err = sql.Open("mysql", "root:secret-jungle@tcp(localhost:3000)/GuessingGameDb")
+	db, err = sql.Open("mysql", "root:secret-jungle@tcp(localhost:3306)/GuessingGameDb")
 	if err != nil {
 		panic(err.Error())
+	}
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 

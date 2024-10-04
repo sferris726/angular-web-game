@@ -8,19 +8,13 @@ export class LoginService {
   constructor(private _http: HttpClient) {}
 
   public sendCredentials(username: string, pw: string) {
-    // console.log('WE IN HERE');
-    // const url = 'http://localhost:3000/login';
-    // const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    // this._http
-    //   .post(url, { username: username, password: pw }, { headers: headers })
-    //   .subscribe((res) => {
-    //     console.log('RECEIVED ', res);
-    //   });
     console.log('WE IN HERE');
-    const url = 'http://localhost:3000/';
+    const url = 'http://localhost:3000/login';
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    this._http.get(url).subscribe((res) => {
-      console.log('RECEIVED ', JSON.stringify(res));
-    });
+    this._http
+      .post(url, { username: username, password: pw }, { headers: headers })
+      .subscribe((res) => {
+        console.log('RECEIVED ', res);
+      });
   }
 }
